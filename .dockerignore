@@ -1,0 +1,12 @@
+target/
+.git/
+.gitignore
+.idea/
+.claude/
+.akka/
+akka-context/
+specs/
+.env
+.env.*
+*.iml
+*.log

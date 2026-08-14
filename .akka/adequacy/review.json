@@ -1,0 +1,22 @@
+{
+  "signature": "b2267fb0c5256aef9508c3958a894b0841a480cff9215960906608f4a1fc1f31",
+  "covered": [
+    "DATA-ENTITY-INVARIANTS",
+    "ENV-DEPS-RESOLVE",
+    "FUNC-TESTS-PASS",
+    "NEVER-COMMIT-BUILD-OUTPUT",
+    "NEVER-UNPINNED-DEP",
+    "OPS-COMPILES",
+    "PROJ-ADR-RECORDED",
+    "PROJ-CI-GREEN",
+    "PROJ-REPO-NO-UNMERGED-DRIFT",
+    "SEC-AUTHZ-ENFORCED",
+    "SEC-SECRETS-NOT-COMMITTED",
+    "forecast-carries-evidence",
+    "no-antibot-evasion",
+    "no-stored-payment-credentials",
+    "no-ticket-acquisition",
+    "outbound-hosts-read-only"
+  ],
+  "reviewed_at": "2026-08-14T16:48:32Z"
+}

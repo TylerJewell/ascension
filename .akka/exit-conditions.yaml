@@ -1,0 +1,103 @@
+developer:
+- id: no-ticket-acquisition
+  tier: Product
+  dod_type: policy
+  provenance: ""
+  invariant: No code path attempts to purchase, reserve, cart, or check out a ticket
+    from any ticketing outlet.
+  signal: ""
+  probe: ""
+  pass: ""
+  autonomy: auto
+  default_level: ""
+  auditor:
+    run:
+    - bash
+    - -lc
+    - '! grep -rniE ''addToCart|placeOrder|purchaseTicket|checkoutSession|reserveSeat|/(checkout|cart|purchase|order)\b''
+      src/main/java 2>/dev/null'
+    applies_to:
+      requirement: FR-022
+      module: src/main/java
+- id: no-antibot-evasion
+  tier: Product
+  dod_type: policy
+  provenance: ""
+  invariant: The project declares no dependency on CAPTCHA-solving or bot-detection-evasion
+    services, and contains no code that disguises its client identity to evade such
+    detection.
+  signal: ""
+  probe: ""
+  pass: ""
+  autonomy: auto
+  default_level: ""
+  auditor:
+    run:
+    - bash
+    - -lc
+    - '! grep -rniE ''2captcha|anti-?captcha|capsolver|deathbycaptcha|capmonster|puppeteer-extra-plugin-stealth|undetected[-_]?chrome|solveCaptcha|bypassCaptcha''
+      pom.xml src/main 2>/dev/null'
+    applies_to:
+      requirement: FR-024
+      module: .
+- id: no-stored-payment-credentials
+  tier: Product
+  dod_type: policy
+  provenance: ""
+  invariant: No persisted type or field holds payment credentials (card number, CVV,
+    expiry, or a payment token).
+  signal: ""
+  probe: ""
+  pass: ""
+  autonomy: auto
+  default_level: ""
+  auditor:
+    run:
+    - bash
+    - -lc
+    - '! grep -rniE ''\b(cardNumber|creditCard|cvv|cvc|expiryDate|paymentToken|pan)\b''
+      src/main/java 2>/dev/null'
+    applies_to:
+      requirement: FR-026
+      module: src/main/java
+- id: forecast-carries-evidence
+  tier: Product
+  dod_type: behavior
+  provenance: ""
+  invariant: Every forecast and every actionable opportunity returned by the system
+    carries at least one evidence signal with a public source and an observation timestamp;
+    a forecast with no evidence is rejected rather than served.
+  signal: ""
+  probe: ""
+  pass: ""
+  autonomy: auto
+  default_level: ""
+  auditor:
+    run:
+    - bash
+    - -lc
+    - mvn -q -B test -Dtest=EvidenceRequiredTest -DfailIfNoTests=true
+    applies_to:
+      requirement: FR-004,FR-016,FR-028
+      module: src/test/java
+- id: outbound-hosts-read-only
+  tier: Product
+  dod_type: behavior
+  provenance: ""
+  invariant: Every outbound request the system makes resolves to a host on a declared
+    read-only allowlist and uses a safe method; a request to an undeclared host, or
+    any non-idempotent method against a ticketing host, is refused at the client boundary
+    rather than sent.
+  signal: ""
+  probe: ""
+  pass: ""
+  autonomy: auto
+  default_level: ""
+  auditor:
+    run:
+    - bash
+    - -lc
+    - mvn -q -B test -Dtest=OutboundHostPolicyTest -DfailIfNoTests=true
+    applies_to:
+      requirement: FR-022,FR-024,FR-025
+      module: src/test/java

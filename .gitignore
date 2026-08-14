@@ -25,6 +25,11 @@ effective-pom.xml
 #local db
 db.mv.db
 
+# Build output and secrets
+*.class
+.env
+.env.*
+
 akka-context/
 .claude/settings.local.json
 
