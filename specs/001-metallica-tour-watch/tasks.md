@@ -22,10 +22,10 @@ Single Akka service. `src/main/java/com/example/{domain,application,api}`, tests
 
 **Purpose**: Configuration the service needs before any component exists
 
-- [ ] T001 Configure dev port, Gemini provider, and guardrail registration in src/main/resources/application.conf
-- [ ] T002 Create the outbound source registry with host, tier, path policy, and rate limit per source in src/main/resources/sources.conf
-- [ ] T003 [P] Verify Java ignore patterns (target/, *.class, *.jar, .idea/, .env*) in .gitignore
-- [ ] T004 [P] Create .dockerignore covering target/, .git/, .env*, and specs/
+- [X] T001 Configure dev port, Gemini provider, and guardrail registration in src/main/resources/application.conf
+- [X] T002 Create the outbound source registry with host, tier, path policy, and rate limit per source in src/main/resources/sources.conf
+- [X] T003 [P] Verify Java ignore patterns (target/, *.class, *.jar, .idea/, .env*) in .gitignore
+- [X] T004 [P] Create .dockerignore covering target/, .git/, .env*, and specs/
 
 ---
 
@@ -35,22 +35,22 @@ Single Akka service. `src/main/java/com/example/{domain,application,api}`, tests
 
 **⚠️ CRITICAL**: No user story work begins until this phase completes. `SourceGateway` lands here specifically so no later component is ever written with an unbounded HTTP client available to it.
 
-- [ ] T005 [P] Define SourceTier enum (A, B, C) in src/main/java/com/example/domain/SourceTier.java
-- [ ] T006 [P] Define SignalKind enum with the eight declared kinds in src/main/java/com/example/domain/SignalKind.java
-- [ ] T007 [P] Define Influence enum (STRONG_POSITIVE..STRONG_NEGATIVE) in src/main/java/com/example/domain/Influence.java
-- [ ] T008 [P] Define Market record (slug, displayName, centroidLat, centroidLon, radiusMiles) with positive-radius validation in src/main/java/com/example/domain/Market.java
-- [ ] T009 [P] Define ArtistRef and VenueRef records in src/main/java/com/example/domain/ArtistRef.java and src/main/java/com/example/domain/VenueRef.java
-- [ ] T010 Define Signal record requiring non-null sourceUrl and observedAt in src/main/java/com/example/domain/Signal.java (depends on T005, T006, T007)
-- [ ] T011 [P] Define ConfidenceBand enum (LOW, MEDIUM, HIGH) in src/main/java/com/example/domain/ConfidenceBand.java
-- [ ] T012 Define Forecast record rejecting empty citedSignalIds and windowStart after windowEnd in src/main/java/com/example/domain/Forecast.java (depends on T011)
-- [ ] T013 Implement ForecastScorer as a pure function over a signal set producing likelihood, window, and confidence, with the R3 weight table and a degraded-source confidence penalty, in src/main/java/com/example/domain/ForecastScorer.java (depends on T010, T012)
-- [ ] T014 Write ForecastScorerTest covering each signal kind's direction, dismissed-signal exclusion, empty-signal rejection, and confidence reduction under degraded sources in src/test/java/com/example/domain/ForecastScorerTest.java (depends on T013)
-- [ ] T015 Implement SourceRegistry loading sources.conf into typed entries (sourceId, host, tier, allowedPaths, rateLimit) in src/main/java/com/example/application/SourceRegistry.java (depends on T002, T005)
-- [ ] T016 Implement SourceGateway enforcing host allowlist, GET/HEAD only, path policy, and rate limits, returning a typed FetchResult with an Unavailable variant and no fallback path, in src/main/java/com/example/application/SourceGateway.java (depends on T015)
-- [ ] T017 Write OutboundHostPolicyTest asserting an undeclared host is refused, a disallowed path is refused, no non-safe method is constructible, and an unavailable source yields Unavailable rather than a retry against another host, in src/test/java/com/example/application/OutboundHostPolicyTest.java (depends on T016)
-- [ ] T018 [P] Define FanProfile record with ageBand, residencyState, memberships, sponsor relationships, and webhook URL — and no payment field of any kind — in src/main/java/com/example/domain/FanProfile.java
-- [ ] T019 Implement FanProfileEntity as a Key Value Entity in src/main/java/com/example/application/FanProfileEntity.java (depends on T018)
-- [ ] T020 Write FanProfileEntityTest covering create, update, and read-before-create in src/test/java/com/example/application/FanProfileEntityTest.java (depends on T019)
+- [X] T005 [P] Define SourceTier enum (A, B, C) in src/main/java/com/example/domain/SourceTier.java
+- [X] T006 [P] Define SignalKind enum with the eight declared kinds in src/main/java/com/example/domain/SignalKind.java
+- [X] T007 [P] Define Influence enum (STRONG_POSITIVE..STRONG_NEGATIVE) in src/main/java/com/example/domain/Influence.java
+- [X] T008 [P] Define Market record (slug, displayName, centroidLat, centroidLon, radiusMiles) with positive-radius validation in src/main/java/com/example/domain/Market.java
+- [X] T009 [P] Define ArtistRef and VenueRef records in src/main/java/com/example/domain/ArtistRef.java and src/main/java/com/example/domain/VenueRef.java
+- [X] T010 Define Signal record requiring non-null sourceUrl and observedAt in src/main/java/com/example/domain/Signal.java (depends on T005, T006, T007)
+- [X] T011 [P] Define ConfidenceBand enum (LOW, MEDIUM, HIGH) in src/main/java/com/example/domain/ConfidenceBand.java
+- [X] T012 Define Forecast record rejecting empty citedSignalIds and windowStart after windowEnd in src/main/java/com/example/domain/Forecast.java (depends on T011)
+- [X] T013 Implement ForecastScorer as a pure function over a signal set producing likelihood, window, and confidence, with the R3 weight table and a degraded-source confidence penalty, in src/main/java/com/example/domain/ForecastScorer.java (depends on T010, T012)
+- [X] T014 Write ForecastScorerTest covering each signal kind's direction, dismissed-signal exclusion, empty-signal rejection, and confidence reduction under degraded sources in src/test/java/com/example/domain/ForecastScorerTest.java (depends on T013)
+- [X] T015 Implement SourceRegistry loading sources.conf into typed entries (sourceId, host, tier, allowedPaths, rateLimit) in src/main/java/com/example/application/SourceRegistry.java (depends on T002, T005)
+- [X] T016 Implement SourceGateway enforcing host allowlist, GET/HEAD only, path policy, and rate limits, returning a typed FetchResult with an Unavailable variant and no fallback path, in src/main/java/com/example/application/SourceGateway.java (depends on T015)
+- [X] T017 Write OutboundHostPolicyTest asserting an undeclared host is refused, a disallowed path is refused, no non-safe method is constructible, and an unavailable source yields Unavailable rather than a retry against another host, in src/test/java/com/example/application/OutboundHostPolicyTest.java (depends on T016)
+- [X] T018 [P] Define FanProfile record with ageBand, residencyState, memberships, sponsor relationships, and webhook URL — and no payment field of any kind — in src/main/java/com/example/domain/FanProfile.java
+- [X] T019 Implement FanProfileEntity as a Key Value Entity in src/main/java/com/example/application/FanProfileEntity.java (depends on T018)
+- [X] T020 Write FanProfileEntityTest covering create, update, and read-before-create in src/test/java/com/example/application/FanProfileEntityTest.java (depends on T019)
 
 **Checkpoint**: Domain vocabulary, the scorer, and the outbound boundary exist and are tested. User stories can begin.
 
@@ -64,29 +64,29 @@ Single Akka service. `src/main/java/com/example/{domain,application,api}`, tests
 
 ### Tests for User Story 1
 
-- [ ] T021 [P] [US1] Write TourWatchEntityTest for registration, signal append, forecast recompute, and Tier-B confirmation rejection in src/test/java/com/example/application/TourWatchEntityTest.java
-- [ ] T022 [P] [US1] Write EvidenceRequiredTest asserting a narration citing zero signals, or citing an id absent from the input set, is refused and the forecast withdrawn, in src/test/java/com/example/application/EvidenceRequiredTest.java
-- [ ] T023 [P] [US1] Write AlertDedupeTest asserting an unchanged event redelivered produces no second alert while a material fact change does, in src/test/java/com/example/application/AlertDedupeTest.java
-- [ ] T024 [P] [US1] Write TourScoutWorkflowTest asserting a failed source step degrades confidence and continues rather than aborting the cycle, in src/test/java/com/example/application/TourScoutWorkflowTest.java
+- [X] T021 [P] [US1] Write TourWatchEntityTest for registration, signal append, forecast recompute, and Tier-B confirmation rejection in src/test/java/com/example/application/TourWatchEntityTest.java
+- [X] T022 [P] [US1] Write EvidenceRequiredTest asserting a narration citing zero signals, or citing an id absent from the input set, is refused and the forecast withdrawn, in src/test/java/com/example/application/EvidenceRequiredTest.java
+- [X] T023 [P] [US1] Write AlertDedupeTest asserting an unchanged event redelivered produces no second alert while a material fact change does, in src/test/java/com/example/application/AlertDedupeTest.java
+- [X] T024 [P] [US1] Write TourScoutWorkflowTest asserting a failed source step degrades confidence and continues rather than aborting the cycle, in src/test/java/com/example/application/TourScoutWorkflowTest.java
 
 ### Implementation for User Story 1
 
-- [ ] T025 [P] [US1] Define PresaleWindow record in src/main/java/com/example/domain/PresaleWindow.java
-- [ ] T026 [US1] Define Visit record with multi-date support and status transition rules in src/main/java/com/example/domain/Visit.java (depends on T009, T025)
-- [ ] T027 [US1] Define TourWatchEvent sealed interface with the nine declared events in src/main/java/com/example/domain/TourWatchEvent.java (depends on T010, T012, T026)
-- [ ] T028 [US1] Define TourWatchState with event application, signal dismissal marking, and forecast history in src/main/java/com/example/domain/TourWatchState.java (depends on T027)
-- [ ] T029 [US1] Implement TourWatchEntity as an Event Sourced Entity, rejecting confirmation from non-Tier-A signals and rejecting forecasts citing zero signals, in src/main/java/com/example/application/TourWatchEntity.java (depends on T028)
-- [ ] T030 [P] [US1] Implement SignalInterpreterAgent returning typed signal candidates with a required verbatim excerpt, and permitting an empty result, in src/main/java/com/example/application/SignalInterpreterAgent.java
-- [ ] T031 [P] [US1] Implement ForecastNarratorAgent producing rationale and citedSignalIds only, never a likelihood or a show date, in src/main/java/com/example/application/ForecastNarratorAgent.java
-- [ ] T032 [US1] Implement EvidenceGuardrail as a TextGuardrail rejecting empty or out-of-set citedSignalIds in src/main/java/com/example/application/EvidenceGuardrail.java (depends on T031)
-- [ ] T033 [US1] Implement TourScoutWorkflow stepping fetch → interpret → append → rescore → narrate, with per-source failure emitting SourceDegraded and continuing, in src/main/java/com/example/application/TourScoutWorkflow.java (depends on T016, T029, T030, T031)
-- [ ] T034 [US1] Implement ScoutTickTimer driving the recurring scout cycle in src/main/java/com/example/application/ScoutTickTimer.java (depends on T033)
-- [ ] T035 [P] [US1] Implement AlertLedgerEntity as a Key Value Entity holding sent fingerprints in src/main/java/com/example/application/AlertLedgerEntity.java
-- [ ] T036 [US1] Implement AlertDispatchConsumer computing time-to-act at delivery, fingerprinting on material facts, and delivering via SourceGateway-independent outbound webhook, in src/main/java/com/example/application/AlertDispatchConsumer.java (depends on T029, T035)
-- [ ] T037 [US1] Implement TourWatchView exposing current forecast and confirmed visits by watchId in src/main/java/com/example/application/TourWatchView.java (depends on T029)
-- [ ] T038 [US1] Define FanApiTypes request/response records with the mandatory FORECAST|CONFIRMED discriminator in src/main/java/com/example/api/FanApiTypes.java
-- [ ] T039 [US1] Implement FanEndpoint routes for profile create, watch register, watch deactivate, and watch read in src/main/java/com/example/api/FanEndpoint.java (depends on T019, T029, T037, T038)
-- [ ] T040 [US1] Write FanEndpointIntegrationTest covering register → forecast → confirm → alert in src/test/java/com/example/api/FanEndpointIntegrationTest.java (depends on T039)
+- [X] T025 [P] [US1] Define PresaleWindow record in src/main/java/com/example/domain/PresaleWindow.java
+- [X] T026 [US1] Define Visit record with multi-date support and status transition rules in src/main/java/com/example/domain/Visit.java (depends on T009, T025)
+- [X] T027 [US1] Define TourWatchEvent sealed interface with the nine declared events in src/main/java/com/example/domain/TourWatchEvent.java (depends on T010, T012, T026)
+- [X] T028 [US1] Define TourWatchState with event application, signal dismissal marking, and forecast history in src/main/java/com/example/domain/TourWatchState.java (depends on T027)
+- [X] T029 [US1] Implement TourWatchEntity as an Event Sourced Entity, rejecting confirmation from non-Tier-A signals and rejecting forecasts citing zero signals, in src/main/java/com/example/application/TourWatchEntity.java (depends on T028)
+- [X] T030 [P] [US1] Implement SignalInterpreterAgent returning typed signal candidates with a required verbatim excerpt, and permitting an empty result, in src/main/java/com/example/application/SignalInterpreterAgent.java
+- [X] T031 [P] [US1] Implement ForecastNarratorAgent producing rationale and citedSignalIds only, never a likelihood or a show date, in src/main/java/com/example/application/ForecastNarratorAgent.java
+- [X] T032 [US1] Implement EvidenceGuardrail as a TextGuardrail rejecting empty or out-of-set citedSignalIds in src/main/java/com/example/application/EvidenceGuardrail.java (depends on T031)
+- [X] T033 [US1] Implement TourScoutWorkflow stepping fetch → interpret → append → rescore → narrate, with per-source failure emitting SourceDegraded and continuing, in src/main/java/com/example/application/TourScoutWorkflow.java (depends on T016, T029, T030, T031)
+- [X] T034 [US1] Implement ScoutTickTimer driving the recurring scout cycle in src/main/java/com/example/application/ScoutTickTimer.java (depends on T033)
+- [X] T035 [P] [US1] Implement AlertLedgerEntity as a Key Value Entity holding sent fingerprints in src/main/java/com/example/application/AlertLedgerEntity.java
+- [X] T036 [US1] Implement AlertDispatchConsumer computing time-to-act at delivery, fingerprinting on material facts, and delivering via SourceGateway-independent outbound webhook, in src/main/java/com/example/application/AlertDispatchConsumer.java (depends on T029, T035)
+- [X] T037 [US1] Implement TourWatchView exposing current forecast and confirmed visits by watchId in src/main/java/com/example/application/TourWatchView.java (depends on T029)
+- [X] T038 [US1] Define FanApiTypes request/response records with the mandatory FORECAST|CONFIRMED discriminator in src/main/java/com/example/api/FanApiTypes.java
+- [X] T039 [US1] Implement FanEndpoint routes for profile create, watch register, watch deactivate, and watch read in src/main/java/com/example/api/FanEndpoint.java (depends on T019, T029, T037, T038)
+- [X] T040 [US1] Write FanEndpointIntegrationTest covering register → forecast → confirm → alert in src/test/java/com/example/api/FanEndpointIntegrationTest.java (depends on T039)
 
 **Checkpoint**: US1 is a viable MVP on its own — a fan who registers a watch hears about the Chicago date before general onsale, with evidence attached.
 
@@ -249,3 +249,16 @@ Setup + Foundational → US1 (MVP) → US2 → US3 → US4. Each adds value with
 - T017 and T022 carry project exit conditions. If either is deleted or renamed, the corresponding conduct boundary stops being enforced regardless of what the code does.
 - T068 is a research obligation, not a coding task: no source enters `sources.conf` without its terms and access policy verified first.
 - Commit after each task or logical group.
+
+## Deviations recorded during US1 implementation
+
+- **`com.example.Bootstrap` was added** (not in the original task list). `SourceRegistry` and
+  `SourceGateway` are built once from configuration and injected, rather than loaded inside
+  `TourScoutWorkflow`. Without this, T024 could not test the workflow against a source that fails
+  on purpose — the registry would have been hard-wired to the shipped, empty one.
+- **`sources.conf` is included from `application.conf`** so the allowlist reaches the service's
+  merged config and a test can override it.
+- **`AttributionGuardrail` was removed from `application.conf`** until US2 exists. Registering a
+  guardrail for an agent that has not been written yet would fail at startup.
+- **`sources.conf` ships with no hosts.** T068 is a prerequisite for adding any, so the service
+  currently makes no outbound requests at all. This is the intended state, not an omission.

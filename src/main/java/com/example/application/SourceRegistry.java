@@ -2,7 +2,6 @@ package com.example.application;
 
 import com.example.domain.SourceTier;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +50,6 @@ public final class SourceRegistry {
   public SourceRegistry(List<SourceEntry> entries) {
     this.byId = entries.stream()
         .collect(Collectors.toMap(SourceEntry::sourceId, Function.identity()));
-  }
-
-  /** Loads the registry shipped with the service. */
-  public static SourceRegistry loadDefault() {
-    return fromConfig(ConfigFactory.load("sources"));
   }
 
   public static SourceRegistry fromConfig(Config config) {

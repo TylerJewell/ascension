@@ -1,6 +1,7 @@
 # Quickstart: Metallica Chicago Tour Watch
 
 **Feature**: `001-metallica-tour-watch` | Service runs locally on **port 9008**
+**Built so far**: User Story 1 (the MVP). US2–US4 are specified and tasked but not implemented.
 
 ## Prerequisites
 
@@ -12,23 +13,28 @@ One additional requirement for the agents:
 echo $GOOGLE_AI_GEMINI_API_KEY    # must be non-empty
 ```
 
-The service starts without it, but any workflow step that calls an agent will fail. Nothing else in the system needs a credential — there are no ticketing accounts, no payment details, and no per-source API keys beyond those declared in `sources.conf`.
+The service starts and every test passes without it. It is needed only when the scout cycle reaches a step that calls an agent. Nothing else here needs a credential — there are no ticketing accounts, no payment details, and no per-source keys beyond whatever a verified source requires.
 
-## Configuration
+## The service makes no outbound requests yet — on purpose
 
-`src/main/resources/application.conf`:
+`src/main/resources/sources.conf` is the complete list of hosts the service may reach, and it ships **empty**. No source is added until its terms of use and machine-readable access policy have been read and confirmed to permit this use (tasks.md T068). Until then `SourceGateway` refuses everything and `Bootstrap` logs a warning at startup.
+
+That means a freshly started service will observe nothing and produce no forecast. That is the correct behaviour, not a bug: the alternative is shipping a host that nobody checked.
+
+To add a verified source:
 
 ```hocon
-akka.javasdk.dev-mode.http-port = 9008
-
-akka.javasdk.agent.googleai-gemini {
-  provider = "googleai-gemini"
-  api-key  = ${?GOOGLE_AI_GEMINI_API_KEY}
-  model-name = "gemini-2.5-flash"
-}
+tourwatch.sources = [
+  {
+    source-id    = "example-official-events"
+    host         = "events.example.com"
+    tier         = "A"                      # A may confirm a date; B and C may only move a forecast
+    allowed-paths = ["/api/events"]
+    min-request-interval-ms = 1000
+    verified-on  = "2026-08-14"
+  }
+]
 ```
-
-`src/main/resources/sources.conf` declares the outbound allowlist. A host absent from this file is unreachable by the service — that is enforced by `SourceGateway`, not by convention, and `OutboundHostPolicyTest` asserts it.
 
 ## Run it
 
@@ -37,86 +43,99 @@ mvn compile
 akka local run          # or the akka_local_run_service MCP tool
 ```
 
-Port 9008 is reserved for this project in the shared local-runtime registry. Before starting, check whether the runtime is already up (`akka local status` / `akka_local_status`) — other services share the daemon, and restarting it stops them.
+Port 9008 is reserved for this project in the shared local-runtime registry. Check whether the runtime is already up (`akka local status`) before starting — other services share the daemon, and restarting it stops them.
 
 ## Walk through the primary flow
 
-**1. Create the fan profile** — attributes are self-declared and are what eligibility rules get evaluated against.
+**1. Create the fan profile.** Attributes are self-declared; nothing is inferred from third parties.
 
 ```bash
 curl -X POST localhost:9008/fan/profile -H 'content-type: application/json' -d '{
-  "fanId": "saurabh", "displayName": "Saurabh",
-  "homeMarket": "chicago", "residencyState": "IL", "ageBand": "A21_PLUS",
-  "fanClubMemberships": [], "sponsorRelationships": [],
+  "fanId": "saurabh",
+  "displayName": "Saurabh",
+  "homeMarket": "chicago",
+  "residencyState": "IL",
+  "ageBand": "A21_PLUS",
+  "fanClubs": [],
+  "sponsorRelationships": [],
   "alertWebhookUrl": "https://webhook.site/your-test-url"
 }'
 ```
 
-**2. Register the watch.**
+`ageBand` is one of `UNDER_18`, `A18_20`, `A21_PLUS` — a band rather than a birthdate, because that is all a contest's age rule needs to be answered.
+
+**2. Register the watch.** The market is a metropolitan area, so it carries a centre and a radius rather than a city name.
 
 ```bash
 curl -X POST localhost:9008/fan/watches -H 'content-type: application/json' -d '{
-  "artistSlug": "metallica", "marketSlug": "chicago",
-  "radiusMiles": 50, "alertThreshold": 60,
+  "artistSlug": "metallica",
+  "artistName": "Metallica",
+  "marketSlug": "chicago",
+  "marketName": "Chicago",
+  "centroidLat": 41.8781,
+  "centroidLon": -87.6298,
+  "radiusMiles": 50,
+  "alertThreshold": 60,
   "alertWebhookUrl": "https://webhook.site/your-test-url"
 }'
 ```
 
-From here the system runs unattended. The steps below are for seeing it work now rather than in three months.
+A 50-mile radius from downtown reaches Soldier Field, the United Center, Wrigley Field, Allstate Arena, and the Tinley Park amphitheatre — all of which a fan means by "Chicago". The webhook must be `https`; the request is rejected otherwise.
 
-**3. Read the current forecast.**
+Registering schedules the first scout cycle five seconds out, then hourly.
+
+**3. Read the watch.**
 
 ```bash
 curl localhost:9008/fan/watches/metallica:chicago
 ```
 
-Check `"kind"`. `FORECAST` means prediction; `CONFIRMED` means an announced date exists. The two are never conflated, and a client that ignores this field is misusing the API.
+Check `"kind"` first. `FORECAST` means prediction; `CONFIRMED` means an announced date exists. The field is mandatory precisely so a client cannot render this payload without knowing which it holds — a prediction displayed as an announcement is the most damaging thing this API could do.
 
-**4. Inspect the evidence.**
+`degradedSources` lists sources that were unreachable on the last cycle. A non-empty list means the forecast rests on less than the full evidence, and its `confidence` has been lowered by one level per blind spot.
 
-```bash
-curl localhost:9008/fan/watches/metallica:chicago/evidence
-```
-
-Every signal carries a public `sourceUrl` and `observedAt`. If a forecast ever appears with an empty signal list, that is a defect — `EvidenceRequiredTest` exists to prevent it.
-
-**5. Dismiss a signal you know is wrong** and watch the forecast move.
+**4. List active watches.**
 
 ```bash
-curl -X POST localhost:9008/fan/watches/metallica:chicago/signals/sig-9f2/dismiss \
-  -H 'content-type: application/json' -d '{"reason":"Hold was a different production"}'
+curl localhost:9008/fan/watches
 ```
 
-Recomputation is a pure function over the remaining signals, so this is deterministic — the same dismissal always produces the same forecast.
-
-**6. List free-ticket opportunities.**
+**5. Deactivate.**
 
 ```bash
-curl 'localhost:9008/fan/watches/metallica:chicago/opportunities?status=ACTIONABLE'
-curl 'localhost:9008/fan/watches/metallica:chicago/opportunities?status=REJECTED'
+curl -X DELETE localhost:9008/fan/watches/metallica:chicago
 ```
 
-The rejected list is worth reading during development: it shows what the attribution rule threw away and why. An empty actionable list with a long rejected list means the screener is working, not that it is broken.
+This also cancels the scout timer, so the watch stops observing rather than quietly continuing.
 
-**7. Mark one interesting**, which schedules the 24-hour reminder.
+## What is not built yet
 
-```bash
-curl -X POST localhost:9008/fan/opportunities/opp-3c1/status \
-  -H 'content-type: application/json' -d '{"status":"INTERESTED"}'
-```
+These are specified in `spec.md`, designed in `contracts/http-api.md`, and tasked in `tasks.md` — the routes simply do not exist yet:
 
-Then open `entryUrl` and enter it yourself. **The system will not enter it for you** — there is no endpoint that does, by design.
+| Story | Missing | Tasks |
+|---|---|---|
+| US2 | Free-ticket opportunities, eligibility, deadline reminders | T041–T056 |
+| US3 | Evidence inspection and signal dismissal over HTTP | T057–T061 |
+| US4 | Forecast resolution and the calibration report | T062–T067 |
+
+Signal dismissal and evidence *do* exist on `TourWatchEntity` and are covered by tests; only the HTTP surface for them is deferred to US3.
 
 ## Run the tests
 
 ```bash
-mvn test
-mvn test -Dtest=EvidenceRequiredTest      # forecasts cannot be served without evidence
+mvn test        # 61 unit tests
+mvn verify      # adds 6 integration tests that boot the whole service
+```
+
+Two carry project exit conditions:
+
+```bash
+mvn test -Dtest=EvidenceRequiredTest      # a forecast cannot be served without evidence
 mvn test -Dtest=OutboundHostPolicyTest    # undeclared hosts and unsafe methods are refused
 ```
 
-Those two carry exit conditions. If either is failing, the corresponding conduct boundary is not being enforced regardless of what the documentation says.
+If either is failing, the corresponding conduct boundary is not being enforced regardless of what the documentation says. `OutboundHostPolicyTest` includes a structural assertion that `SourceGateway.Transport` exposes exactly one method, `get(URI)` — so widening the outbound boundary cannot happen quietly.
 
 ## Verifying internal state
 
-`akka_backoffice_list_components` and `akka_backoffice_get_entity_state` show live entity state against the running service — useful for confirming that `TourWatchEntity`'s journal contains the signals you expect after a scout cycle, without adding a debug endpoint for it.
+`akka_backoffice_list_components` and `akka_backoffice_get_entity_state` show live entity state against the running service — useful for confirming `TourWatchEntity`'s journal holds the signals you expect after a cycle, without adding a debug endpoint for it.
