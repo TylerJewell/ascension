@@ -101,3 +101,8 @@ developer:
     applies_to:
       requirement: FR-022,FR-024,FR-025
       module: src/test/java
+attestations:
+  CONTENT-TONE:
+    ref: tone-review:content-0b593b0e994a53db:rubric-5predicates-pass
+    by: attest
+    at: "2026-08-15T11:29:06Z"

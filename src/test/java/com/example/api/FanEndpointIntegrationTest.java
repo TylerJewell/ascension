@@ -160,6 +160,20 @@ class FanEndpointIntegrationTest extends TestKitSupport {
   }
 
   @Test
+  void servesTheConsoleAtTheRoot() {
+    var response = httpClient
+        .GET("/")
+        .parseResponseBody(bytes -> new String(bytes, java.nio.charset.StandardCharsets.UTF_8))
+        .invoke();
+
+    assertThat(response.status().intValue()).isEqualTo(200);
+    assertThat(response.body()).contains("Tour Watch");
+    // The console is self-contained: no external script, style, or font is fetched.
+    assertThat(response.body()).doesNotContain("http://");
+    assertThat(response.body()).doesNotContain("<script src=");
+  }
+
+  @Test
   void exposesNoRouteThatAcquiresATicket() {
     // FR-022 and FR-023 at the API surface. The fan is given the official link and enters
     // himself; there is deliberately nothing here that would do it for him.

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tour Watch</title>
+<style>
+:root{--yellow:#F5C518;--green:#28C840;--purple:#A855F7;--white:#F5F5F5;}
+*{margin:0;box-sizing:border-box}
+body{background:#070707;color:#B8B8B8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 40px 80px;position:relative}
+.bg{position:fixed;inset:0;background-image:radial-gradient(circle,rgba(245,197,24,0.035) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.wrap>*{position:relative;z-index:1}
+.mono{font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand-mark{font-weight:800;letter-spacing:1px;color:#0A0A0A;background:var(--yellow);padding:3px 9px;border-radius:5px;font-size:14px}
+.brand-sub{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:#666;font-weight:600}
+h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;color:var(--white);margin:14px 0 6px}
+.lead{font-size:15px;color:#999;max-width:720px;margin-bottom:34px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--yellow);font-weight:600;margin:44px 0 16px;display:flex;align-items:center;gap:10px}
+.section-label::before{content:'';width:28px;height:2px;background:var(--yellow)}
+.card{background:#0A0A0A;border:1px solid #1C1C1C;border-radius:10px;padding:22px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#888;margin-bottom:5px;font-weight:700}
+input{width:100%;background:#050505;border:1px solid #1C1C1C;border-radius:6px;padding:9px 12px;color:#E8E8E8;font-size:13px;font-family:'SF Mono','Consolas',monospace}
+input:focus{outline:none;border-color:var(--yellow)}
+.field{margin-bottom:14px}
+button{background:var(--yellow);color:#0A0A0A;border:none;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+button:hover{background:#ffd633}
+button.ghost{background:transparent;color:#888;border:1px solid #2a2a2a}
+button.ghost:hover{background:#141414;color:#ccc}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.stat{background:#050505;border:1px solid #1C1C1C;border-radius:8px;padding:16px;text-align:center}
+.stat-num{font-size:30px;font-weight:700;color:var(--yellow);line-height:1}
+.stat-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+.badge{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:4px 10px;border-radius:4px}
+.badge.forecast{background:#1A1600;border:1px solid var(--yellow);color:var(--yellow)}
+.badge.confirmed{background:#04180A;border:1px solid var(--green);color:var(--green)}
+.badge.dim{background:#141414;border:1px solid #333;color:#888}
+.meter{height:6px;background:#141414;border-radius:3px;overflow:hidden;margin:10px 0 6px}
+.meter-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .3s ease}
+.kv{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #141414}
+.kv:last-child{border-bottom:none}
+.kv .k{color:#888}.kv .v{color:#E8E8E8;font-family:'SF Mono','Consolas',monospace;font-size:12px}
+.chip{display:inline-block;background:#141414;border:1px solid #333;border-radius:4px;padding:3px 9px;margin:0 5px 5px 0;font-size:11px;color:#C3E88D;font-family:'SF Mono','Consolas',monospace}
+.chip.warn{color:#FF6B6B;border-color:#4a2020}
+.watch-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #141414;cursor:pointer}
+.watch-row:last-child{border-bottom:none}
+.watch-row:hover .wname{color:var(--yellow)}
+.wname{font-weight:700;color:var(--white);font-size:14px}
+.wmeta{font-size:12px;color:#666}
+.pct{margin-left:auto;font-weight:700;color:var(--yellow);font-family:'SF Mono','Consolas',monospace}
+.rationale{font-size:13.5px;color:#9a9a9a;margin:12px 0;padding:12px 14px;background:#050505;border-left:2px solid var(--yellow);border-radius:0 6px 6px 0}
+.empty{color:#666;font-size:13px;padding:14px 0}
+.msg{font-size:12.5px;padding:10px 14px;border-radius:6px;margin-bottom:14px;display:none}
+.msg.err{background:#1a0a0a;border:1px solid #4a2020;color:#FF9B9B;display:block}
+.msg.ok{background:#04180A;border:1px solid #14461f;color:#8FE3A0;display:block}
+.visit{background:#050505;border:1px solid #1C1C1C;border-radius:8px;padding:14px;margin-top:10px}
+.visit-title{font-weight:700;color:var(--green);font-size:14px;margin-bottom:8px}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid #1C1C1C;font-size:11px;color:#555;display:flex;justify-content:space-between}
+.foot .cmd{color:var(--yellow)}
+@media(max-width:720px){.wrap{padding:32px 20px 60px}.grid2{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:30px}}
+</style></head>
+<body><div class="bg"></div><div class="wrap">
+
+<div class="brand"><span class="brand-mark">AKKA</span><span class="brand-sub">Tour Watch</span></div>
+<h1>Tour Watch</h1>
+<p class="lead">Register an artist and a city. The service watches public sources on its own and tells you when a date is coming.</p>
+
+<div id="msg" class="msg"></div>
+
+<div class="section-label">Register a watch</div>
+<div class="card">
+  <div class="grid2">
+    <div class="field"><label>Artist slug</label><input id="artistSlug" value="metallica"></div>
+    <div class="field"><label>Artist name</label><input id="artistName" value="Metallica"></div>
+    <div class="field"><label>Market slug</label><input id="marketSlug" value="chicago"></div>
+    <div class="field"><label>Market name</label><input id="marketName" value="Chicago"></div>
+    <div class="field"><label>Centre latitude</label><input id="centroidLat" value="41.8781"></div>
+    <div class="field"><label>Centre longitude</label><input id="centroidLon" value="-87.6298"></div>
+    <div class="field"><label>Radius (miles)</label><input id="radiusMiles" value="50"></div>
+    <div class="field"><label>Alert threshold (%)</label><input id="alertThreshold" value="60"></div>
+  </div>
+  <div class="field"><label>Alert webhook (https)</label><input id="alertWebhookUrl" value="https://webhook.site/replace-me"></div>
+  <div class="row">
+    <button id="registerBtn">Register watch</button>
+    <button class="ghost" id="refreshBtn">Refresh list</button>
+  </div>
+</div>
+
+<div class="section-label">Active watches</div>
+<div class="card"><div id="watchList"><div class="empty">Loading…</div></div></div>
+
+<div id="detail" style="display:none">
+  <div class="section-label">Watch detail</div>
+  <div class="card">
+    <div class="row" style="margin-bottom:16px">
+      <span id="dTitle" class="wname" style="font-size:18px"></span>
+      <span id="dKind" class="badge"></span>
+      <button class="ghost" id="deactivateBtn" style="margin-left:auto">Deactivate</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="sLikelihood">—</div><div class="stat-label">Likelihood</div></div>
+      <div class="stat"><div class="stat-num" id="sConfidence">—</div><div class="stat-label">Confidence</div></div>
+      <div class="stat"><div class="stat-num" id="sSignals">—</div><div class="stat-label">Signals cited</div></div>
+      <div class="stat"><div class="stat-num" id="sVisits">—</div><div class="stat-label">Confirmed visits</div></div>
+    </div>
+
+    <div id="forecastBox">
+      <div class="meter"><div class="meter-fill" id="meterFill" style="width:0%"></div></div>
+      <div class="kv"><span class="k">Announcement expected between</span><span class="v" id="dWindow">—</span></div>
+      <div class="rationale" id="dRationale">No explanation yet.</div>
+      <div>
+        <label>Cited signals</label>
+        <div id="dSignals"><span class="chip">none</span></div>
+      </div>
+      <div style="margin-top:14px">
+        <label>Sources currently unreachable</label>
+        <div id="dDegraded"><span class="chip">none</span></div>
+      </div>
+    </div>
+
+    <div id="visitBox"></div>
+  </div>
+</div>
+
+<div class="foot"><span>Built with <span class="cmd mono">Akka Specify</span></span><span>Akka SDK 3.6.3</span></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentWatchId = null;
+
+function say(text, kind) {
+  const m = $('msg');
+  m.textContent = text;
+  m.className = 'msg ' + kind;
+  setTimeout(() => { m.className = 'msg'; }, 6000);
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'content-type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  const text = await res.text();
+  if (!res.ok) throw new Error(text || (method + ' ' + path + ' failed with ' + res.status));
+  return text ? JSON.parse(text) : null;
+}
+
+function chips(target, values, cls) {
+  const el = $(target);
+  el.innerHTML = '';
+  if (!values || values.length === 0) {
+    el.innerHTML = '<span class="chip">none</span>';
+    return;
+  }
+  values.forEach(v => {
+    const s = document.createElement('span');
+    s.className = 'chip' + (cls ? ' ' + cls : '');
+    s.textContent = v;
+    el.appendChild(s);
+  });
+}
+
+async function loadWatches() {
+  try {
+    const data = await api('GET', '/fan/watches');
+    const list = $('watchList');
+    list.innerHTML = '';
+    if (!data.watches || data.watches.length === 0) {
+      list.innerHTML = '<div class="empty">No active watches. Register one above.</div>';
+      return;
+    }
+    data.watches.forEach(w => {
+      const row = document.createElement('div');
+      row.className = 'watch-row';
+      row.onclick = () => loadDetail(w.watchId);
+      row.innerHTML =
+        '<div><div class="wname"></div><div class="wmeta"></div></div>' +
+        '<div class="pct">' + w.likelihood + '%</div>';
+      row.querySelector('.wname').textContent = w.artist + ' — ' + w.market;
+      row.querySelector('.wmeta').textContent = w.watchId;
+      list.appendChild(row);
+    });
+  } catch (e) {
+    say(e.message, 'err');
+  }
+}
+
+async function loadDetail(watchId) {
+  try {
+    const w = await api('GET', '/fan/watches/' + encodeURIComponent(watchId));
+    currentWatchId = watchId;
+    $('detail').style.display = 'block';
+    $('dTitle').textContent = w.artist + ' — ' + w.market;
+
+    const kind = $('dKind');
+    kind.textContent = w.kind;
+    kind.className = 'badge ' + (w.kind === 'CONFIRMED' ? 'confirmed' : 'forecast');
+
+    const f = w.forecast;
+    $('sLikelihood').textContent = f ? f.likelihood + '%' : '—';
+    $('sConfidence').textContent = f ? f.confidence : '—';
+    $('sSignals').textContent = f ? f.citedSignalIds.length : '0';
+    $('sVisits').textContent = w.confirmedVisits.length;
+    $('meterFill').style.width = (f ? f.likelihood : 0) + '%';
+    $('dWindow').textContent = f ? f.announcementWindow.start + '  →  ' + f.announcementWindow.end : '—';
+    $('dRationale').textContent = f && f.rationale ? f.rationale : 'No explanation yet.';
+    chips('dSignals', f ? f.citedSignalIds : []);
+    chips('dDegraded', w.degradedSources, 'warn');
+
+    const box = $('visitBox');
+    box.innerHTML = '';
+    w.confirmedVisits.forEach(v => {
+      const d = document.createElement('div');
+      d.className = 'visit';
+      d.innerHTML =
+        '<div class="visit-title"></div>' +
+        '<div class="kv"><span class="k">Dates</span><span class="v vDates"></span></div>' +
+        '<div class="kv"><span class="k">On sale</span><span class="v vOnsale"></span></div>' +
+        '<div class="kv"><span class="k">Status</span><span class="v vStatus"></span></div>' +
+        '<div class="kv"><span class="k">Announced by</span><span class="v vSrc"></span></div>';
+      d.querySelector('.visit-title').textContent = v.venue + ', ' + v.city;
+      d.querySelector('.vDates').textContent = v.dates.join('  ·  ');
+      d.querySelector('.vOnsale').textContent = v.onsaleAt || '—';
+      d.querySelector('.vStatus').textContent = v.status;
+      d.querySelector('.vSrc').textContent = v.sourceUrl;
+      box.appendChild(d);
+    });
+
+    $('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    say(e.message, 'err');
+  }
+}
+
+$('registerBtn').onclick = async () => {
+  const body = {
+    artistSlug: $('artistSlug').value.trim(),
+    artistName: $('artistName').value.trim(),
+    marketSlug: $('marketSlug').value.trim(),
+    marketName: $('marketName').value.trim(),
+    centroidLat: parseFloat($('centroidLat').value),
+    centroidLon: parseFloat($('centroidLon').value),
+    radiusMiles: parseInt($('radiusMiles').value, 10),
+    alertThreshold: parseInt($('alertThreshold').value, 10),
+    alertWebhookUrl: $('alertWebhookUrl').value.trim()
+  };
+  try {
+    const res = await api('POST', '/fan/watches', body);
+    say('Watching ' + res.watchId, 'ok');
+    await loadWatches();
+    await loadDetail(res.watchId);
+  } catch (e) {
+    say(e.message, 'err');
+  }
+};
+
+$('refreshBtn').onclick = loadWatches;
+
+$('deactivateBtn').onclick = async () => {
+  if (!currentWatchId) return;
+  try {
+    await api('DELETE', '/fan/watches/' + encodeURIComponent(currentWatchId));
+    say('Stopped watching ' + currentWatchId, 'ok');
+    $('detail').style.display = 'none';
+    currentWatchId = null;
+    await loadWatches();
+  } catch (e) {
+    say(e.message, 'err');
+  }
+};
+
+loadWatches();
+</script>
+</body></html>
