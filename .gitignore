@@ -33,3 +33,7 @@ db.mv.db
 akka-context/
 .claude/settings.local.json
 
+
+# Scratch downloads
+akka-fav*.tmp
+akka-favicon.bin
