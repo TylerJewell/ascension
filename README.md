@@ -10,7 +10,7 @@ Built with **Akka Specify**.
 
 ## Where it came from
 
-The entire application — specification, plan, task breakdown, implementation, tests, and documentation — was generated from this one prompt:
+The  application — specification, plan, task breakdown, implementation, tests, and documentation — was generated from this  prompt:
 
 > Saurabh at Ascension is a huge fan of Metallica -- he would really like to know when they are coming to Chicago. Can you design an agentic AI system that can predict when they will arrive and how he can get free tickets for that. Come up with a proposal and a plan.
 
@@ -24,10 +24,6 @@ From the specification:
 - **Free ways in.** Legitimate no-cost routes to a confirmed date — station contests, fan-club draws, venue and sponsor giveaways — are tracked with their eligibility rules and closing deadlines, with a reminder before each one closes.
 - **Show me why.** Every forecast can be opened down to the signals behind it, each with a public source and the time it was observed. A signal you know is wrong can be dismissed, and the estimate recomputes without it.
 - **Keep itself honest.** Forecasts are resolved against what actually happened, and the system reports its own hit rate by confidence band.
-
-The system finds and reminds. It never buys, reserves, or enters anything on your behalf.
-
-**Currently running:** *Know before the world knows.* The remaining three are specified and not yet built.
 
 ![One scout cycle, from fetch to alert](docs/images/interaction-diagram.png)
 
