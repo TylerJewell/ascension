@@ -32,8 +32,10 @@ The system finds and reminds. It never buys, reserves, or enters anything on you
 
 ### 1. Set the model key
 
+Put your Google AI Studio key in the environment as `GOOGLE_AI_GEMINI_API_KEY`.
+
 ```bash
-export GOOGLE_AI_GEMINI_API_KEY="your-key"
+read -rs GOOGLE_AI_GEMINI_API_KEY && export GOOGLE_AI_GEMINI_API_KEY
 ```
 
 ### 2. Start the service
