@@ -31,22 +31,49 @@ Generated documentation lives at [`docs/index.html`](docs/index.html) — open i
 
 ---
 
-## Running it
+## Running it — the short path
+
+You do not need Java, Maven, or the Akka CLI installed. Akka Specify installs them for you.
+
+**1. Install Akka Specify** in Claude Code:
+
+```
+/plugin marketplace add akka/ai-marketplace
+/plugin install akka@akka-ai-marketplace
+```
+
+Restart Claude Code when it asks.
+
+**2. Give it this prompt:**
+
+> Clone https://github.com/TylerJewell/ascension into a new directory and open it.
+> Then run /akka:setup to install everything this project needs, and /akka:build to
+> compile it, run the tests, and start it locally.
+
+**3. Open the console** at http://localhost:9008.
+
+Akka Specify installs the toolchain, provisions the Akka download token, builds the project, runs the tests, and starts the service. Set a model key first — see [Model providers](#model-providers) below — or the service will start but any step that calls an agent will fail.
+
+---
+
+## Running it — the developer path
 
 ### Requirements
 
 - Java 21 or newer
 - Maven 3.9 or newer
 - An Akka download token — run `akka code token` once
-- A Google AI Gemini API key
+- A key for one of the [supported model providers](#model-providers)
 
 ### 1. Set the model key
 
-Put your Google AI Studio key in the environment as `GOOGLE_AI_GEMINI_API_KEY`.
+The project defaults to Google AI Gemini. Put your key in the environment:
 
 ```bash
 read -rs GOOGLE_AI_GEMINI_API_KEY && export GOOGLE_AI_GEMINI_API_KEY
 ```
+
+To use a different provider, see [Model providers](#model-providers).
 
 ### 2. Start the service
 
@@ -88,13 +115,62 @@ Restart the service after editing.
 
 ---
 
+## Model providers
+
+The two agents run on whichever provider you select. Nothing in the code is tied to one — set `MODEL_PROVIDER` and the matching key, and restart.
+
+```bash
+export MODEL_PROVIDER=anthropic
+export ANTHROPIC_API_KEY=...
+```
+
+Leave `MODEL_PROVIDER` unset to use Google AI Gemini.
+
+### Hosted providers
+
+| `MODEL_PROVIDER` | Variables to set | Default model |
+|---|---|---|
+| `googleai-gemini` *(default)* | `GOOGLE_AI_GEMINI_API_KEY` | `gemini-2.5-flash` |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-sonnet-5` |
+| `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` |
+| `mistral-ai` | `MISTRAL_AI_API_KEY`, `MODEL_NAME` | none — set `MODEL_NAME` |
+| `vertex-ai` | `VERTEX_AI_API_KEY`, `VERTEX_AI_PROJECT_ID`, `VERTEX_AI_LOCATION`, `MODEL_NAME` | none — set `MODEL_NAME` |
+| `azure-openai` | `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT` | set by deployment |
+| `bedrock` | `AWS_REGION`, `BEDROCK_MODEL_ID`, plus your usual AWS credentials | set by `BEDROCK_MODEL_ID` |
+| `hugging-face` | `HUGGING_FACE_ACCESS_TOKEN`, `HUGGING_FACE_MODEL_ID` | set by `HUGGING_FACE_MODEL_ID` |
+
+### Local providers
+
+No key required — only a reachable address.
+
+| `MODEL_PROVIDER` | Variables to set | Default address |
+|---|---|---|
+| `ollama` | `MODEL_NAME`, optionally `OLLAMA_BASE_URL` | `http://localhost:11434` |
+| `local-ai` | `MODEL_NAME`, optionally `LOCAL_AI_BASE_URL` | `http://localhost:8080/v1` |
+
+### Choosing a different model
+
+`MODEL_NAME` overrides the model for whichever provider is selected, so changing model and changing provider are independent:
+
+```bash
+export MODEL_PROVIDER=anthropic
+export ANTHROPIC_API_KEY=...
+export MODEL_NAME=claude-opus-5
+```
+
+If the selected provider has no credential, the service still starts and logs a warning naming the variable it expected. The failure shows up at startup rather than midway through the first watch cycle.
+
+Provider settings live in `src/main/resources/application.conf` if you want to pin a model rather than pass an environment variable.
+
+---
+
 ## Running the tests
 
 ```bash
 mvn verify
 ```
 
-68 tests: 61 unit, 7 integration.
+73 tests: 66 unit, 7 integration.
 
 ---
 
@@ -103,17 +179,19 @@ mvn verify
 ```bash
 akka auth login
 
-# Store the model key as a secret in your Akka project
-akka secret create generic gemini-api --literal key=$GOOGLE_AI_GEMINI_API_KEY
+# Store the model key as a secret. Substitute the variable your provider uses.
+akka secret create generic model-api --literal key=$GOOGLE_AI_GEMINI_API_KEY
 
 # Builds the container image; note the image name and tag it prints
 mvn clean install -DskipTests
 
 akka service deploy tour-watch ascension:<tag-from-the-install-output> --push \
-  --secret-env GOOGLE_AI_GEMINI_API_KEY=gemini-api/key
+  --secret-env GOOGLE_AI_GEMINI_API_KEY=model-api/key
 
 akka service list
 ```
+
+For a different provider, pass its variable instead and set the selection alongside it — for example `--env MODEL_PROVIDER=anthropic --secret-env ANTHROPIC_API_KEY=model-api/key`.
 
 ---
 
