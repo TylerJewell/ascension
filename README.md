@@ -4,6 +4,16 @@ Register an artist and a city. The service watches public sources on its own and
 
 Built with **Akka Specify**.
 
+![The Tour Watch console](docs/images/console.png)
+
+---
+
+## Where it came from
+
+The entire application — specification, plan, task breakdown, implementation, tests, and documentation — was generated from this one prompt:
+
+> Saurabh at Ascension is a huge fan of Metallica -- he would really like to know when they are coming to Chicago. Can you design an agentic AI system that can predict when they will arrive and how he can get free tickets for that. Come up with a proposal and a plan.
+
 ---
 
 ## What it does
@@ -18,6 +28,10 @@ From the specification:
 The system finds and reminds. It never buys, reserves, or enters anything on your behalf.
 
 **Currently running:** *Know before the world knows.* The remaining three are specified and not yet built.
+
+![One scout cycle, from fetch to alert](docs/images/interaction-diagram.png)
+
+Generated documentation lives at [`docs/index.html`](docs/index.html) — open it in a browser.
 
 ---
 
